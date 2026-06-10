@@ -1,0 +1,179 @@
+{
+    "kpis": {
+        "total_revenue": 41897604894.0,
+        "total_profit": 14664161712.899998,
+        "total_passengers": 2598683
+    },
+    "top_routes": [
+        {
+            "source_airport": "ORD",
+            "destination_airport": "ATL",
+            "revenue": 2705745726,
+            "profit": 947011004.1,
+            "passengers": 198856
+        },
+        {
+            "source_airport": "ATL",
+            "destination_airport": "ORD",
+            "revenue": 2678232977,
+            "profit": 937381541.95,
+            "passengers": 212970
+        },
+        {
+            "source_airport": "LHR",
+            "destination_airport": "BOS",
+            "revenue": 2428225931,
+            "profit": 849879075.85,
+            "passengers": 145354
+        },
+        {
+            "source_airport": "ACE",
+            "destination_airport": "LGW",
+            "revenue": 2409158161,
+            "profit": 843205356.3499999,
+            "passengers": 118255
+        },
+        {
+            "source_airport": "ORD",
+            "destination_airport": "MSY",
+            "revenue": 2241485054,
+            "profit": 784519768.8999999,
+            "passengers": 136244
+        },
+        {
+            "source_airport": "CGK",
+            "destination_airport": "SIN",
+            "revenue": 2220082112,
+            "profit": 777028739.2,
+            "passengers": 134909
+        },
+        {
+            "source_airport": "SIN",
+            "destination_airport": "KUL",
+            "revenue": 2188081141,
+            "profit": 765828399.35,
+            "passengers": 118302
+        },
+        {
+            "source_airport": "CNX",
+            "destination_airport": "BKK",
+            "revenue": 2133598259,
+            "profit": 746759390.6499999,
+            "passengers": 152820
+        },
+        {
+            "source_airport": "JFK",
+            "destination_airport": "MXP",
+            "revenue": 2007691085,
+            "profit": 702691879.75,
+            "passengers": 118480
+        },
+        {
+            "source_airport": "KUL",
+            "destination_airport": "CGK",
+            "revenue": 2005054609,
+            "profit": 701769113.1499999,
+            "passengers": 139960
+        }
+    ],
+    "revenue_forecast": [
+        {
+            "month": 1,
+            "forecast_revenue": 836530686.7235662
+        },
+        {
+            "month": 2,
+            "forecast_revenue": 857320280.2899603
+        },
+        {
+            "month": 3,
+            "forecast_revenue": 878109873.8563545
+        },
+        {
+            "month": 4,
+            "forecast_revenue": 898899467.4227486
+        },
+        {
+            "month": 5,
+            "forecast_revenue": 919689060.9891428
+        },
+        {
+            "month": 6,
+            "forecast_revenue": 940478654.555537
+        },
+        {
+            "month": 7,
+            "forecast_revenue": 961268248.1219312
+        },
+        {
+            "month": 8,
+            "forecast_revenue": 982057841.6883252
+        },
+        {
+            "month": 9,
+            "forecast_revenue": 1002847435.2547194
+        },
+        {
+            "month": 10,
+            "forecast_revenue": 1023637028.8211136
+        },
+        {
+            "month": 11,
+            "forecast_revenue": 1044426622.3875076
+        },
+        {
+            "month": 12,
+            "forecast_revenue": 1065216215.953902
+        }
+    ],
+    "passenger_forecast": [
+        {
+            "month": 1,
+            "forecast_passengers": 183615.68098449527
+        },
+        {
+            "month": 2,
+            "forecast_passengers": 185710.3620504302
+        },
+        {
+            "month": 3,
+            "forecast_passengers": 187805.04311636512
+        },
+        {
+            "month": 4,
+            "forecast_passengers": 189899.7241823
+        },
+        {
+            "month": 5,
+            "forecast_passengers": 191994.4052482349
+        },
+        {
+            "month": 6,
+            "forecast_passengers": 194089.08631416984
+        },
+        {
+            "month": 7,
+            "forecast_passengers": 196183.76738010472
+        },
+        {
+            "month": 8,
+            "forecast_passengers": 198278.44844603963
+        },
+        {
+            "month": 9,
+            "forecast_passengers": 200373.1295119745
+        },
+        {
+            "month": 10,
+            "forecast_passengers": 202467.81057790943
+        },
+        {
+            "month": 11,
+            "forecast_passengers": 204562.49164384435
+        },
+        {
+            "month": 12,
+            "forecast_passengers": 206657.17270977923
+        }
+    ]
+}

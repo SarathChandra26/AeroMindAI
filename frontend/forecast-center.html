@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroMind AI — Forecast Center</title>
+  <link rel="stylesheet" href="aeromind.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <style>
+    /* page-specific growth indicator grid */
+    .growth-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .growth-cell {
+      background: var(--glass-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      transition: all var(--t-base);
+    }
+    .growth-cell:hover {
+      background: var(--glass-2);
+      border-color: var(--glass-border-hi);
+    }
+    .gc-month {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .gc-rev {
+      font-family: var(--font-display);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .gc-pax {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      margin-bottom: 6px;
+    }
+    .gc-growth {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent-jade);
+    }
+    .gc-bar {
+      height: 3px;
+      background: var(--glass-3);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .gc-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent-violet), var(--accent-azure));
+    }
+
+    /* Confidence band indicator */
+    .conf-legend {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 6px;
+    }
+    .cl-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+    }
+    .cl-swatch {
+      width: 20px; height: 3px;
+      border-radius: 2px;
+    }
+
+    /* Summary stats strip */
+    .stats-strip {
+      display: flex;
+      gap: 20px;
+      background: var(--glass-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 18px 24px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .stat-item { flex: 1; min-width: 140px; }
+    .stat-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .stat-sub {
+      font-size: 0.71rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">✈</div>
+    <div class="brand-text">
+      <div class="brand-name">AeroMind AI</div>
+      <div class="brand-tagline">Ops Intelligence</div>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <a href="dashboard.html" class="nav-link">
+      <span class="nav-icon">◈</span> Executive Dashboard
+    </a>
+    <a href="route-intelligence.html" class="nav-link">
+      <span class="nav-icon">⊹</span> Route Intelligence
+    </a>
+    <a href="revenue-analytics.html" class="nav-link">
+      <span class="nav-icon">◎</span> Revenue Analytics
+    </a>
+    <a href="forecast-center.html" class="nav-link active">
+      <span class="nav-icon">⟁</span> Forecast Center
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">AI Intelligence</div>
+    <a href="executive-ai.html" class="nav-link">
+      <span class="nav-icon">✦</span> Executive AI
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <div class="status-dot"></div>
+      <span>All systems operational</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="page-title-block">
+      <span class="page-eyebrow">Predictive Analytics</span>
+      <span class="page-title">Forecast Center</span>
+    </div>
+    <div class="topbar-right">
+      <span class="metric-chip purple">⟁ 12-Month Horizon</span>
+      <span class="topbar-time" id="clock">—</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div class="stat-item">
+        <div class="stat-label">Forecast Start</div>
+        <div class="stat-val">$836.5M</div>
+        <div class="stat-sub">Month 1 revenue</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Forecast End</div>
+        <div class="stat-val">$1.065B</div>
+        <div class="stat-sub">Month 12 revenue</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Revenue Growth</div>
+        <div class="stat-val" style="color:var(--accent-jade)">+27.4%</div>
+        <div class="stat-sub">Over 12 months</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Pax Start</div>
+        <div class="stat-val">183.6K</div>
+        <div class="stat-sub">Month 1 passengers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Pax End</div>
+        <div class="stat-val">206.7K</div>
+        <div class="stat-sub">Month 12 passengers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Pax Growth</div>
+        <div class="stat-val" style="color:var(--accent-jade)">+12.5%</div>
+        <div class="stat-sub">Over 12 months</div>
+      </div>
+    </div>
+
+    <!-- Revenue forecast chart -->
+    <div class="card mb-28">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Revenue Forecast — 12-Month Projection</div>
+          <div class="card-subtitle">Linear trend with confidence band · monthly granularity</div>
+        </div>
+        <div class="conf-legend">
+          <div class="cl-item"><div class="cl-swatch" style="background:#8b5cf6"></div> Forecast</div>
+          <div class="cl-item"><div class="cl-swatch" style="background:rgba(139,92,246,0.25);height:10px;border-radius:2px"></div> ±5% band</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" id="chart-rev-main" style="height:320px"></div>
+      </div>
+    </div>
+
+    <!-- Passenger forecast + MoM growth -->
+    <div class="grid-2 mb-28">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Passenger Forecast</div>
+            <div class="card-subtitle">Monthly volume — 12-month horizon</div>
+          </div>
+          <span class="metric-chip purple">Area</span>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" id="chart-pax-main" style="height:280px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Month-over-Month Growth</div>
+            <div class="card-subtitle">Revenue incremental gain per month</div>
+          </div>
+          <span class="metric-chip green">Δ Growth</span>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" id="chart-mom" style="height:280px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue vs Pax dual-axis -->
+    <div class="card mb-28">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Revenue &amp; Passenger Trajectory — Combined View</div>
+          <div class="card-subtitle">Dual-axis overlay · monthly trend comparison</div>
+        </div>
+        <span class="metric-chip blue">Dual Axis</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" id="chart-dual" style="height:300px"></div>
+      </div>
+    </div>
+
+    <!-- Growth Indicators grid -->
+    <div class="section-header">
+      <div>
+        <div class="section-title">Growth Indicators</div>
+        <div class="section-subtitle">Per-month forecast detail — revenue &amp; passenger volumes</div>
+      </div>
+      <span class="section-badge">12 months</span>
+    </div>
+    <div class="growth-grid" id="growth-grid"></div>
+
+  </div>
+</main>
+
+<script>
+const REV_F = [836530686.72,857320280.29,878109873.86,898899467.42,919689060.99,940478654.56,961268248.12,982057841.69,1002847435.25,1023637028.82,1044426622.39,1065216215.95];
+const PAX_F = [183615,185710,187805,189900,191994,194089,196184,198278,200373,202468,204562,206657];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function tick() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+tick(); setInterval(tick, 1000);
+
+const LAYOUT_BASE = {
+  paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+  font:{family:'Inter, sans-serif', color:'#94a3b8', size:11},
+  margin:{t:10,r:10,b:40,l:60}, showlegend:false,
+  xaxis:{gridcolor:'rgba(255,255,255,0.05)',linecolor:'rgba(255,255,255,0.06)',tickcolor:'transparent',tickfont:{color:'#4a5f7a',size:10}},
+  yaxis:{gridcolor:'rgba(255,255,255,0.05)',linecolor:'rgba(255,255,255,0.06)',tickcolor:'transparent',tickfont:{color:'#4a5f7a',size:10}}
+};
+const CFG = {displayModeBar:false, responsive:true};
+
+/* Confidence band */
+const upperBand = REV_F.map(v=>v*1.05);
+const lowerBand = REV_F.map(v=>v*0.95);
+
+Plotly.newPlot('chart-rev-main',[
+  {
+    type:'scatter', mode:'lines',
+    x:[...MONTHS,...[...MONTHS].reverse()],
+    y:[...upperBand,...lowerBand.slice().reverse()],
+    fill:'toself',
+    fillcolor:'rgba(139,92,246,0.10)',
+    line:{color:'transparent'},
+    hoverinfo:'skip',
+    showlegend:false
+  },
+  {
+    type:'scatter', mode:'lines+markers',
+    x:MONTHS, y:REV_F,
+    name:'Revenue Forecast',
+    line:{color:'#8b5cf6',width:2.5,shape:'spline'},
+    marker:{color:'#8b5cf6',size:6,line:{color:'rgba(255,255,255,0.2)',width:1}},
+    fill:'tozeroy',
+    fillcolor:'rgba(139,92,246,0.06)',
+    hovertemplate:'<b>%{x}</b><br>$%{y:,.0f}<extra></extra>'
+  },
+  {
+    type:'scatter', mode:'lines',
+    x:MONTHS, y:upperBand,
+    line:{color:'rgba(139,92,246,0.3)',width:1,dash:'dot'},
+    hoverinfo:'skip'
+  },
+  {
+    type:'scatter', mode:'lines',
+    x:MONTHS, y:lowerBand,
+    line:{color:'rgba(139,92,246,0.3)',width:1,dash:'dot'},
+    hoverinfo:'skip'
+  }
+],{
+  ...LAYOUT_BASE,
+  margin:{t:10,r:10,b:40,l:80},
+  yaxis:{...LAYOUT_BASE.yaxis,tickformat:'$,.0s',title:{text:'Revenue (USD)',font:{color:'#4a5f7a',size:10}}}
+},CFG);
+
+/* Passenger area */
+Plotly.newPlot('chart-pax-main',[{
+  type:'scatter', mode:'lines+markers',
+  x:MONTHS, y:PAX_F,
+  line:{color:'#0ea5e9',width:2.5,shape:'spline'},
+  fill:'tozeroy',
+  fillcolor:'rgba(14,165,233,0.08)',
+  marker:{color:'#0ea5e9',size:5,line:{color:'rgba(255,255,255,0.2)',width:1}},
+  hovertemplate:'<b>%{x}</b><br>%{y:,} passengers<extra></extra>'
+}],{
+  ...LAYOUT_BASE,
+  margin:{t:10,r:10,b:40,l:65},
+  yaxis:{...LAYOUT_BASE.yaxis,tickformat:',.0s'}
+},CFG);
+
+/* MoM growth bars */
+const mom = REV_F.slice(1).map((v,i)=>v - REV_F[i]);
+Plotly.newPlot('chart-mom',[{
+  type:'bar',
+  x:MONTHS.slice(1), y:mom,
+  marker:{
+    color:mom.map((v,i)=>`rgba(16,185,129,${0.5+i*0.04})`),
+    line:{width:0}
+  },
+  hovertemplate:'<b>%{x}</b><br>+$%{y:,.0f}<extra></extra>'
+}],{
+  ...LAYOUT_BASE,
+  margin:{t:10,r:10,b:40,l:70},
+  yaxis:{...LAYOUT_BASE.yaxis,tickformat:'$,.0s'}
+},CFG);
+
+/* Dual-axis */
+Plotly.newPlot('chart-dual',[
+  {
+    type:'scatter', mode:'lines+markers',
+    name:'Revenue',
+    x:MONTHS, y:REV_F,
+    yaxis:'y1',
+    line:{color:'#8b5cf6',width:2.5,shape:'spline'},
+    marker:{color:'#8b5cf6',size:5},
+    hovertemplate:'<b>%{x}</b><br>Rev: $%{y:,.0f}<extra></extra>'
+  },
+  {
+    type:'scatter', mode:'lines+markers',
+    name:'Passengers',
+    x:MONTHS, y:PAX_F,
+    yaxis:'y2',
+    line:{color:'#0ea5e9',width:2,dash:'dot',shape:'spline'},
+    marker:{color:'#0ea5e9',size:5},
+    hovertemplate:'<b>%{x}</b><br>Pax: %{y:,}<extra></extra>'
+  }
+],{
+  ...LAYOUT_BASE,
+  showlegend:true,
+  legend:{font:{color:'#94a3b8',size:11},bgcolor:'transparent',x:0.02,y:1},
+  margin:{t:20,r:70,b:40,l:70},
+  yaxis:{...LAYOUT_BASE.yaxis,title:{text:'Revenue ($)',font:{color:'#4a5f7a',size:10}},tickformat:'$,.0s'},
+  yaxis2:{
+    overlaying:'y', side:'right',
+    gridcolor:'transparent',
+    tickfont:{color:'#4a5f7a',size:10},
+    title:{text:'Passengers',font:{color:'#4a5f7a',size:10}},
+    tickformat:',.0s',
+    showgrid:false,
+    linecolor:'rgba(255,255,255,0.06)'
+  }
+},CFG);
+
+/* Growth Indicators Grid */
+const maxRev = Math.max(...REV_F);
+const grid = document.getElementById('growth-grid');
+MONTHS.forEach((m,i)=>{
+  const growthPct = i===0 ? 0 : ((REV_F[i]-REV_F[0])/REV_F[0]*100).toFixed(1);
+  const barW = (REV_F[i]/maxRev*100).toFixed(0);
+  const cell = document.createElement('div');
+  cell.className = 'growth-cell';
+  cell.innerHTML = `
+    <div class="gc-month">${m}</div>
+    <div class="gc-rev">$${(REV_F[i]/1e6).toFixed(0)}M</div>
+    <div class="gc-pax">${(PAX_F[i]/1000).toFixed(1)}K pax</div>
+    <div class="gc-growth">${i===0 ? 'Baseline' : `+${growthPct}% cumulative`}</div>
+    <div class="gc-bar">
+      <div class="gc-bar-fill" style="width:${barW}%"></div>
+    </div>
+  `;
+  grid.appendChild(cell);
+});
+</script>
+</body>
+</html>

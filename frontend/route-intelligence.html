@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroMind AI — Route Intelligence</title>
+  <link rel="stylesheet" href="aeromind.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">✈</div>
+    <div class="brand-text">
+      <div class="brand-name">AeroMind AI</div>
+      <div class="brand-tagline">Ops Intelligence</div>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <a href="dashboard.html" class="nav-link">
+      <span class="nav-icon">◈</span> Executive Dashboard
+    </a>
+    <a href="route-intelligence.html" class="nav-link active">
+      <span class="nav-icon">⊹</span> Route Intelligence
+    </a>
+    <a href="revenue-analytics.html" class="nav-link">
+      <span class="nav-icon">◎</span> Revenue Analytics
+    </a>
+    <a href="forecast-center.html" class="nav-link">
+      <span class="nav-icon">⟁</span> Forecast Center
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">AI Intelligence</div>
+    <a href="executive-ai.html" class="nav-link">
+      <span class="nav-icon">✦</span> Executive AI
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <div class="status-dot"></div>
+      <span>All systems operational</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="page-title-block">
+      <span class="page-eyebrow">Network Analysis</span>
+      <span class="page-title">Route Intelligence</span>
+    </div>
+    <div class="topbar-right">
+      <span class="metric-chip blue">20 Active Routes</span>
+      <span class="topbar-time" id="clock">—</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- Summary KPIs -->
+    <div class="kpi-grid mb-28">
+      <div class="kpi-card revenue">
+        <div class="kpi-label"><span class="kpi-label-icon">🏆</span> Top Route Revenue</div>
+        <div class="kpi-value">$2.71B</div>
+        <div class="kpi-meta"><span class="route-badge">ORD <span class="arrow">→</span> ATL</span></div>
+        <div class="kpi-bg-icon">✈</div>
+      </div>
+      <div class="kpi-card profit">
+        <div class="kpi-label"><span class="kpi-label-icon">🌐</span> Highest Passengers</div>
+        <div class="kpi-value">212,970</div>
+        <div class="kpi-meta"><span class="route-badge">ATL <span class="arrow">→</span> ORD</span></div>
+        <div class="kpi-bg-icon">🧳</div>
+      </div>
+      <div class="kpi-card passenger">
+        <div class="kpi-label"><span class="kpi-label-icon">⚡</span> Best Margin Route</div>
+        <div class="kpi-value">35.0%</div>
+        <div class="kpi-meta"><span class="route-badge">ORD <span class="arrow">→</span> ATL</span></div>
+        <div class="kpi-bg-icon">%</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label"><span class="kpi-label-icon">🗺</span> Active Regions</div>
+        <div class="kpi-value">5</div>
+        <div class="kpi-meta"><span style="color:var(--text-muted);font-size:0.75rem">NA · EU · AS · SEA · PAC</span></div>
+        <div class="kpi-bg-icon">◎</div>
+      </div>
+    </div>
+
+    <!-- Chart row -->
+    <div class="grid-60-40 mb-28">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue per Route — Full Network</div>
+            <div class="card-subtitle">All 20 routes ranked by total revenue</div>
+          </div>
+          <span class="metric-chip blue">Horizontal Bar</span>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" id="chart-all-routes" style="height:460px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue vs Passengers</div>
+            <div class="card-subtitle">Bubble size = profit</div>
+          </div>
+          <span class="metric-chip purple">Bubble</span>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" id="chart-bubble" style="height:460px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profit margin bar + table -->
+    <div class="grid-40-60 mb-28">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Profit Margin by Route</div>
+            <div class="card-subtitle">% profit / revenue</div>
+          </div>
+          <span class="metric-chip green">Gauge</span>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" id="chart-margin" style="height:420px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Route Rankings</div>
+            <div class="card-subtitle">Top 20 routes — all metrics</div>
+          </div>
+          <span class="section-badge">20 routes</span>
+        </div>
+        <div class="card-body no-pad">
+          <table class="data-table" id="route-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Route</th>
+                <th>Revenue</th>
+                <th>Profit</th>
+                <th>Margin</th>
+                <th>Pax</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passengers chart -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Passenger Volume by Route</div>
+          <div class="card-subtitle">All routes — volume comparison</div>
+        </div>
+        <span class="metric-chip amber">Bar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" id="chart-pax" style="height:280px"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const ROUTES = [
+  { s:"ORD", d:"ATL", revenue:2705745726, profit:947011004.10, passengers:198856 },
+  { s:"ATL", d:"ORD", revenue:2678232977, profit:937381541.95, passengers:212970 },
+  { s:"LHR", d:"BOS", revenue:2428225931, profit:849879075.85, passengers:145354 },
+  { s:"ACE", d:"LGW", revenue:2409158161, profit:843205356.35, passengers:118255 },
+  { s:"ORD", d:"MSY", revenue:2241485054, profit:784519768.90, passengers:136244 },
+  { s:"CGK", d:"SIN", revenue:2220082112, profit:777028739.20, passengers:134909 },
+  { s:"SIN", d:"KUL", revenue:2188081141, profit:765828399.35, passengers:118302 },
+  { s:"CNX", d:"BKK", revenue:2133598259, profit:746759390.65, passengers:152820 },
+  { s:"JFK", d:"MXP", revenue:2007691085, profit:702691879.75, passengers:118480 },
+  { s:"KUL", d:"CGK", revenue:2005054609, profit:701769113.15, passengers:139960 },
+  { s:"JFK", d:"MSY", revenue:1968340093, profit:688919032.55, passengers:114739 },
+  { s:"ATL", d:"IAH", revenue:1955742642, profit:684509924.70, passengers:123930 },
+  { s:"LHR", d:"LAX", revenue:1948169440, profit:681859304.00, passengers:108816 },
+  { s:"HKG", d:"BKK", revenue:1940979635, profit:679342872.25, passengers:128941 },
+  { s:"HGH", d:"SJW", revenue:1917291331, profit:671051965.85, passengers:122909 },
+  { s:"BKK", d:"ICN", revenue:1861122782, profit:651392973.70, passengers:98754  },
+  { s:"HGH", d:"DLC", revenue:1854199723, profit:648969903.05, passengers:112659 },
+  { s:"CPH", d:"OSL", revenue:1816874283, profit:635905999.05, passengers:101854 },
+  { s:"ORD", d:"CDG", revenue:1815516126, profit:635430644.10, passengers:102514 },
+  { s:"HGH", d:"HKG", revenue:1802013784, profit:630704824.40, passengers:107417 }
+];
+
+function tick() {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+tick(); setInterval(tick, 1000);
+
+const LAYOUT_BASE = {
+  paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+  font:{family:'Inter, sans-serif', color:'#94a3b8', size:11},
+  margin:{t:10,r:10,b:40,l:50}, showlegend:false,
+  xaxis:{gridcolor:'rgba(255,255,255,0.05)',linecolor:'rgba(255,255,255,0.06)',tickcolor:'transparent',tickfont:{color:'#4a5f7a',size:10}},
+  yaxis:{gridcolor:'rgba(255,255,255,0.05)',linecolor:'rgba(255,255,255,0.06)',tickcolor:'transparent',tickfont:{color:'#4a5f7a',size:10}}
+};
+const CFG = {displayModeBar:false, responsive:true};
+
+const fmtB = v => v >= 1e9 ? `$${(v/1e9).toFixed(2)}B` : `$${(v/1e6).toFixed(0)}M`;
+const fmtM = v => `$${(v/1e6).toFixed(1)}M`;
+const fmtPct = (p,r) => (p/r*100).toFixed(1)+'%';
+
+/* All routes horizontal bar */
+const rev_sorted = [...ROUTES].slice().reverse();
+Plotly.newPlot('chart-all-routes', [{
+  type:'bar', orientation:'h',
+  y: rev_sorted.map(r=>`${r.s}→${r.d}`),
+  x: rev_sorted.map(r=>r.revenue),
+  marker:{
+    color: rev_sorted.map((r,i)=>`rgba(14,165,233,${0.3+i*0.035})`),
+    line:{width:0}
+  },
+  hovertemplate:'<b>%{y}</b><br>$%{x:,.0f}<extra></extra>'
+}],{
+  ...LAYOUT_BASE,
+  margin:{t:10,r:20,b:40,l:100},
+  xaxis:{...LAYOUT_BASE.xaxis,tickformat:'$,.0s'},
+  yaxis:{...LAYOUT_BASE.yaxis,tickfont:{color:'#94a3b8',size:9.5}}
+},CFG);
+
+/* Bubble: revenue vs passengers, size=profit */
+Plotly.newPlot('chart-bubble',[{
+  type:'scatter', mode:'markers',
+  x: ROUTES.map(r=>r.passengers),
+  y: ROUTES.map(r=>r.revenue),
+  text: ROUTES.map(r=>`${r.s}→${r.d}`),
+  marker:{
+    size: ROUTES.map(r=>Math.sqrt(r.profit/350000)),
+    color: ROUTES.map(r=>r.profit/r.revenue),
+    colorscale:[[0,'#0ea5e9'],[0.5,'#10b981'],[1,'#8b5cf6']],
+    opacity:0.82,
+    line:{color:'rgba(255,255,255,0.12)',width:1}
+  },
+  hovertemplate:'<b>%{text}</b><br>Pax: %{x:,}<br>Rev: $%{y:,.0f}<extra></extra>'
+}],{
+  ...LAYOUT_BASE,
+  xaxis:{...LAYOUT_BASE.xaxis,title:{text:'Passengers',font:{color:'#4a5f7a',size:10}},tickformat:',.0s'},
+  yaxis:{...LAYOUT_BASE.yaxis,title:{text:'Revenue ($)',font:{color:'#4a5f7a',size:10}},tickformat:'$,.0s'}
+},CFG);
+
+/* Profit margin horizontal bar */
+const mg = [...ROUTES].map(r=>({...r,margin:r.profit/r.revenue*100})).sort((a,b)=>a.margin-b.margin);
+Plotly.newPlot('chart-margin',[{
+  type:'bar', orientation:'h',
+  y: mg.map(r=>`${r.s}→${r.d}`),
+  x: mg.map(r=>r.margin),
+  marker:{
+    color: mg.map(r=>r.margin > 35 ? '#10b981' : r.margin > 33 ? '#0ea5e9' : '#8b5cf6'),
+    line:{width:0}
+  },
+  hovertemplate:'<b>%{y}</b><br>Margin: %{x:.1f}%<extra></extra>'
+}],{
+  ...LAYOUT_BASE,
+  margin:{t:10,r:20,b:40,l:100},
+  xaxis:{...LAYOUT_BASE.xaxis,ticksuffix:'%'},
+  yaxis:{...LAYOUT_BASE.yaxis,tickfont:{color:'#94a3b8',size:9}}
+},CFG);
+
+/* Passengers bar */
+Plotly.newPlot('chart-pax',[{
+  type:'bar',
+  x: ROUTES.map(r=>`${r.s}→${r.d}`),
+  y: ROUTES.map(r=>r.passengers),
+  marker:{
+    color: ROUTES.map(r=>r.passengers),
+    colorscale:[[0,'rgba(139,92,246,0.5)'],[1,'rgba(167,139,250,0.9)']],
+    line:{width:0}
+  },
+  hovertemplate:'<b>%{x}</b><br>%{y:,} pax<extra></extra>'
+}],{
+  ...LAYOUT_BASE,
+  margin:{t:10,r:10,b:70,l:60},
+  xaxis:{...LAYOUT_BASE.xaxis,tickangle:-35,tickfont:{color:'#94a3b8',size:9}},
+  yaxis:{...LAYOUT_BASE.yaxis,tickformat:',.0s'}
+},CFG);
+
+/* Table */
+const tbody = document.getElementById('table-body');
+ROUTES.forEach((r, i) => {
+  const tr = document.createElement('tr');
+  const isTop = i < 3;
+  tr.innerHTML = `
+    <td><span class="rank-num ${isTop?'top3':''}">${String(i+1).padStart(2,'0')}</span></td>
+    <td><span class="route-badge">${r.s} <span class="arrow">→</span> ${r.d}</span></td>
+    <td class="text-mono fw-600 text-blue">${fmtB(r.revenue)}</td>
+    <td class="text-mono text-green">${fmtM(r.profit)}</td>
+    <td class="text-mono">${fmtPct(r.profit,r.revenue)}</td>
+    <td class="text-mono text-secondary">${r.passengers.toLocaleString()}</td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

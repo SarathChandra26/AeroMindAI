@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroMind AI — Executive Intelligence</title>
+  <link rel="stylesheet" href="aeromind.css" />
+  <style>
+    /* ── Page-specific styles ── */
+
+    /* Insight cards */
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .insight-card {
+      background: var(--glass-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--t-base);
+      backdrop-filter: blur(10px);
+    }
+    .insight-card:hover {
+      border-color: var(--glass-border-hi);
+      background: var(--glass-2);
+      transform: translateY(-2px);
+    }
+    .insight-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .insight-card.capacity::before  { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+    .insight-card.pricing::before   { background: linear-gradient(90deg, #10b981, #34d399); }
+    .insight-card.expansion::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .insight-card.risk::before      { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .insight-card.forecast::before  { background: linear-gradient(90deg, #00d4ff, #38bdf8); }
+    .insight-card.efficiency::before{ background: linear-gradient(90deg, #10b981, #0ea5e9); }
+
+    .insight-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.63rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .insight-tag.blue   { background: rgba(14,165,233,0.12); color: var(--accent-sky); border: 1px solid rgba(14,165,233,0.2); }
+    .insight-tag.green  { background: rgba(16,185,129,0.12); color: var(--accent-jade); border: 1px solid rgba(16,185,129,0.2); }
+    .insight-tag.purple { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2); }
+    .insight-tag.amber  { background: rgba(245,158,11,0.12); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); }
+    .insight-tag.cyan   { background: rgba(0,212,255,0.10); color: #00d4ff; border: 1px solid rgba(0,212,255,0.2); }
+
+    .insight-title {
+      font-family: var(--font-display);
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .insight-body {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .insight-metric {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .im-value {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .im-value.blue   { color: var(--accent-sky); }
+    .im-value.green  { color: var(--accent-jade); }
+    .im-value.purple { color: #a78bfa; }
+    .im-value.amber  { color: var(--accent-amber); }
+    .im-value.cyan   { color: #00d4ff; }
+    .im-label { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Executive summary strip */
+    .exec-summary {
+      background: var(--glass-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .exec-summary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-sky), var(--accent-violet), var(--accent-jade));
+    }
+    .exec-summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .exec-summary-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .exec-summary-text {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+    .exec-summary-text strong { color: var(--text-primary); font-weight: 600; }
+
+    /* ── AI Insight Simulator ── */
+    .ai-simulator-wrap {
+      background: var(--glass-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .ai-sim-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ai-model-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ai-orb {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--accent-sky), var(--accent-violet));
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      box-shadow: 0 0 12px rgba(14,165,233,0.4);
+    }
+    .ai-orb.processing {
+      animation: orb-pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes orb-pulse {
+      0%, 100% { box-shadow: 0 0 12px rgba(14,165,233,0.4); }
+      50% { box-shadow: 0 0 24px rgba(14,165,233,0.8), 0 0 40px rgba(139,92,246,0.3); }
+    }
+    .ai-name {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .ai-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Insight output panel */
+    .ai-output-panel {
+      padding: 20px 22px;
+      min-height: 340px;
+      max-height: 480px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* Idle state */
+    .ai-idle-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      gap: 14px;
+      opacity: 0.5;
+    }
+    .ai-idle-orb {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(139,92,246,0.15));
+      border: 1px solid rgba(14,165,233,0.2);
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+    }
+    .ai-idle-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 240px;
+      line-height: 1.6;
+    }
+
+    /* Loading state */
+    .ai-loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      gap: 18px;
+    }
+    .ai-loading-state.visible { display: flex; }
+
+    .ai-loader-ring {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(14,165,233,0.15);
+      border-top-color: var(--accent-sky);
+      border-right-color: var(--accent-violet);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .ai-loading-text {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      animation: blink-text 1.5s ease-in-out infinite;
+    }
+    @keyframes blink-text {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    .ai-loading-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 260px;
+    }
+    .ai-load-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: all 0.4s ease;
+    }
+    .ai-load-step.done {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--accent-jade);
+    }
+    .ai-load-step.active {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--accent-sky);
+    }
+    .step-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Result cards inside panel */
+    .ai-result-block {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .ai-result-block.visible {
+      display: flex;
+      animation: result-in 0.5s ease forwards;
+    }
+    @keyframes result-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-section-label {
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .result-card {
+      background: var(--glass-2);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 3px;
+    }
+    .result-card.rc-blue::before   { background: var(--accent-sky); }
+    .result-card.rc-green::before  { background: var(--accent-jade); }
+    .result-card.rc-purple::before { background: #a78bfa; }
+    .result-card.rc-amber::before  { background: var(--accent-amber); }
+    .result-card.rc-cyan::before   { background: #00d4ff; }
+    .result-card.rc-crimson::before{ background: var(--accent-crimson); }
+
+    .result-card-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .result-card-body {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .result-card-body strong { color: var(--text-primary); }
+
+    .result-metric-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .rmet {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .rmet-val {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .rmet-val.blue   { color: var(--accent-sky); }
+    .rmet-val.green  { color: var(--accent-jade); }
+    .rmet-val.amber  { color: var(--accent-amber); }
+    .rmet-val.purple { color: #a78bfa; }
+    .rmet-val.cyan   { color: #00d4ff; }
+    .rmet-lbl { font-size: 0.67rem; color: var(--text-muted); }
+
+    /* Typing cursor effect */
+    .typing-cursor::after {
+      content: '▌';
+      animation: cursor-blink 0.8s step-end infinite;
+      color: var(--accent-sky);
+      font-size: 0.8em;
+    }
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Route table in results */
+    .route-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.74rem;
+      margin-top: 8px;
+    }
+    .route-table th {
+      text-align: left;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 8px 8px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .route-table td {
+      padding: 7px 8px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .route-table tr:last-child td { border-bottom: none; }
+    .route-table .td-route {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.77rem;
+    }
+    .route-table .td-rev { color: var(--accent-jade); font-weight: 600; }
+    .route-table .td-pax { color: var(--accent-sky); }
+
+    /* Forecast bar mini chart */
+    .forecast-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 56px;
+      margin-top: 12px;
+      padding-top: 4px;
+    }
+    .fbar {
+      flex: 1;
+      background: linear-gradient(0deg, rgba(14,165,233,0.6), rgba(14,165,233,0.2));
+      border-radius: 2px 2px 0 0;
+      position: relative;
+      transition: background 0.3s;
+      min-height: 4px;
+    }
+    .fbar:hover { background: linear-gradient(0deg, var(--accent-sky), rgba(14,165,233,0.4)); }
+    .fbar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 4px;
+    }
+
+    /* Action buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .action-btn-card {
+      background: var(--glass-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all var(--t-base);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .action-btn-card:hover {
+      background: var(--glass-2);
+      border-color: rgba(14,165,233,0.3);
+      transform: translateY(-2px);
+    }
+    .action-btn-card.active {
+      border-color: rgba(14,165,233,0.5);
+      background: rgba(14,165,233,0.06);
+    }
+    .action-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .action-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .action-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Priority badge */
+    .priority-badge {
+      position: absolute;
+      top: 16px; right: 16px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .priority-badge.high   { background: rgba(239,68,68,0.15); color: var(--accent-crimson); border: 1px solid rgba(239,68,68,0.2); }
+    .priority-badge.medium { background: rgba(245,158,11,0.12); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); }
+    .priority-badge.low    { background: rgba(16,185,129,0.12); color: var(--accent-jade); border: 1px solid rgba(16,185,129,0.2); }
+
+    /* Status indicator in header */
+    .ai-status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent-jade);
+      box-shadow: 0 0 6px var(--accent-jade);
+      animation: status-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes status-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .ai-status-dot.processing {
+      background: var(--accent-amber);
+      box-shadow: 0 0 6px var(--accent-amber);
+    }
+
+    /* Timestamp */
+    .result-timestamp {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    /* Animated entry for rows */
+    .stagger-in {
+      opacity: 0;
+      transform: translateY(6px);
+      animation: stagger-reveal 0.4s ease forwards;
+    }
+    @keyframes stagger-reveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======== Sidebar ======== -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">✈</div>
+    <div class="brand-text">
+      <div class="brand-name">AeroMind AI</div>
+      <div class="brand-tagline">Ops Intelligence</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <a href="dashboard.html" class="nav-link">
+      <span class="nav-icon">◈</span> Executive Dashboard
+    </a>
+    <a href="route-intelligence.html" class="nav-link">
+      <span class="nav-icon">⊹</span> Route Intelligence
+    </a>
+    <a href="revenue-analytics.html" class="nav-link">
+      <span class="nav-icon">◎</span> Revenue Analytics
+    </a>
+    <a href="forecast-center.html" class="nav-link">
+      <span class="nav-icon">⟁</span> Forecast Center
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">AI Intelligence</div>
+    <a href="executive-ai.html" class="nav-link active">
+      <span class="nav-icon">✦</span> Executive AI
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <div class="status-dot"></div>
+      <span>All systems operational</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ======== Main ======== -->
+<main class="main">
+  <header class="topbar">
+    <div class="page-title-block">
+      <span class="page-eyebrow">AI Insight Simulator</span>
+      <span class="page-title">Executive AI Center</span>
+    </div>
+    <div class="topbar-right">
+      <span class="metric-chip purple">✦ AeroMind Intelligence</span>
+      <span class="topbar-time" id="clock">—</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- KPI Strip -->
+    <div class="kpi-grid mb-28">
+      <div class="kpi-card revenue">
+        <div class="kpi-label"><span class="kpi-label-icon">💰</span> Total Revenue</div>
+        <div class="kpi-value">$41.90B</div>
+        <div class="kpi-meta"><span class="kpi-delta up">↑ 12.4%</span><span>vs prior year</span></div>
+        <div class="kpi-bg-icon">$</div>
+      </div>
+      <div class="kpi-card profit">
+        <div class="kpi-label"><span class="kpi-label-icon">📈</span> Total Profit</div>
+        <div class="kpi-value">$14.66B</div>
+        <div class="kpi-meta"><span class="kpi-delta up">↑ 8.7%</span><span>vs prior year</span></div>
+        <div class="kpi-bg-icon">↑</div>
+      </div>
+      <div class="kpi-card passenger">
+        <div class="kpi-label"><span class="kpi-label-icon">🧳</span> Total Passengers</div>
+        <div class="kpi-value">2.60M</div>
+        <div class="kpi-meta"><span class="kpi-delta up">↑ 6.1%</span><span>vs prior year</span></div>
+        <div class="kpi-bg-icon">✈</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label"><span class="kpi-label-icon">📊</span> Profit Margin</div>
+        <div class="kpi-value">35.0%</div>
+        <div class="kpi-meta"><span class="kpi-delta neutral">→ stable</span><span>operating margin</span></div>
+        <div class="kpi-bg-icon">%</div>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="exec-summary mb-28">
+      <div class="exec-summary-header">
+        <div class="exec-summary-title">Executive Summary</div>
+        <span class="metric-chip purple">✦ Auto-generated</span>
+      </div>
+      <p class="exec-summary-text">
+        The network delivered <strong>$41.90B in total revenue</strong> with a <strong>35.0% profit margin</strong>, led by the <strong>ORD→ATL corridor ($2.71B)</strong> as the single highest-earning route. The <strong>top 10 routes account for ~54%</strong> of total network revenue, indicating healthy concentration in high-yield segments. Southeast Asia (CGK→SIN, SIN→KUL, KUL→CGK) is emerging as a growth cluster, with all three routes in the top 10. The 12-month revenue forecast projects <strong>27.4% cumulative growth</strong>, reaching $1.065B/month by month 12. Passenger volume is forecast to grow a measured <strong>12.5%</strong>, implying revenue-per-passenger expansion — a strong yield management signal. Priority actions: maximize capacity on ORD↔ATL, accelerate SEA network, deploy dynamic pricing on all 20 tracked routes.
+      </p>
+    </div>
+
+    <!-- Strategic Recommendations -->
+    <div class="section-header mb-20">
+      <div>
+        <div class="section-title">Strategic Recommendations</div>
+        <div class="section-subtitle">Generated from network revenue, profitability, and forecast data</div>
+      </div>
+      <span class="section-badge">6 insights</span>
+    </div>
+
+    <div class="insight-grid">
+
+      <div class="insight-card capacity">
+        <span class="priority-badge high">High Priority</span>
+        <div class="insight-tag blue">⬡ Capacity</div>
+        <div class="insight-title">Expand ORD↔ATL Corridor</div>
+        <div class="insight-body">The ORD→ATL and ATL→ORD routes are the top two revenue generators at $2.71B and $2.68B respectively. With consistent 35% margins and combined 411K passengers, frequency expansion or up-gauging to widebody aircraft will capture suppressed demand directly.</div>
+        <div class="insight-metric">
+          <span class="im-value blue">$5.38B</span>
+          <span class="im-label">combined corridor revenue</span>
+        </div>
+      </div>
+
+      <div class="insight-card pricing">
+        <span class="priority-badge high">High Priority</span>
+        <div class="insight-tag green">◈ Pricing</div>
+        <div class="insight-title">Dynamic Pricing Rollout</div>
+        <div class="insight-body">All 20 tracked routes show near-uniform 35% margins — a signal that static pricing may be leaving revenue on the table. Deploying AI-driven dynamic pricing calibrated to booking curve, load factor, and competitive fare signals is expected to yield 8–12% revenue uplift without volume loss.</div>
+        <div class="insight-metric">
+          <span class="im-value green">+9.6%</span>
+          <span class="im-label">projected avg revenue uplift</span>
+        </div>
+      </div>
+
+      <div class="insight-card expansion">
+        <span class="priority-badge medium">Medium Priority</span>
+        <div class="insight-tag purple">⊹ Expansion</div>
+        <div class="insight-title">Southeast Asia Network Growth</div>
+        <div class="insight-body">Three SEA routes (CGK→SIN, SIN→KUL, KUL→CGK) rank in the network's top 10, generating $6.4B combined. Secondary-market expansion into DMK, MNL, or HAN would extend reach within this profitable corridor cluster with acceptable load risk.</div>
+        <div class="insight-metric">
+          <span class="im-value purple">$6.41B</span>
+          <span class="im-label">SEA cluster revenue</span>
+        </div>
+      </div>
+
+      <div class="insight-card risk">
+        <span class="priority-badge medium">Medium Priority</span>
+        <div class="insight-tag amber">⚠ Seasonality</div>
+        <div class="insight-title">Q3–Q4 Demand Surge Planning</div>
+        <div class="insight-body">The 12-month passenger forecast shows steady monthly growth of ~2,095 passengers/month. Passenger volume peaks project in months 9–12 (Sep–Dec), requiring advance aircraft positioning, crew rostering, and slot coordination on long-haul routes (LHR→BOS, JFK→MXP).</div>
+        <div class="insight-metric">
+          <span class="im-value amber">+12.5%</span>
+          <span class="im-label">passenger growth over 12 months</span>
+        </div>
+      </div>
+
+      <div class="insight-card forecast">
+        <span class="priority-badge low">Opportunity</span>
+        <div class="insight-tag cyan">⟁ Forecast</div>
+        <div class="insight-title">Revenue Yield Expansion Signal</div>
+        <div class="insight-body">Revenue is forecast to grow 27.4% while passenger volume grows only 12.5% — a 2.2x divergence that signals strong yield management opportunities. Focus premium cabin upsell programs on LHR→BOS and JFK→MXP where international yield is highest.</div>
+        <div class="insight-metric">
+          <span class="im-value cyan">2.2×</span>
+          <span class="im-label">revenue vs pax growth ratio</span>
+        </div>
+      </div>
+
+      <div class="insight-card efficiency">
+        <span class="priority-badge low">Opportunity</span>
+        <div class="insight-tag green">⬤ Efficiency</div>
+        <div class="insight-title">Ancillary Revenue Activation</div>
+        <div class="insight-body">Domestic high-frequency routes (ORD→MSY, ATL→IAH, CPH→OSL) have large passenger bases but lower per-passenger revenue vs international routes. Activating ancillary streams — seat upgrades, baggage bundles, lounge access — could improve margins by 2–3 percentage points.</div>
+        <div class="insight-metric">
+          <span class="im-value green">+2.5%</span>
+          <span class="im-label">projected margin improvement</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- AI Insight Simulator + Action Center -->
+    <div class="grid-60-40 mb-28">
+
+      <!-- AI Insight Simulator -->
+      <div class="ai-simulator-wrap">
+        <div class="ai-sim-header">
+          <div class="ai-model-badge">
+            <div class="ai-orb" id="sim-orb">✦</div>
+            <div>
+              <div class="ai-name">AeroMind Intelligence</div>
+              <div class="ai-sub" id="sim-status-text">Network &amp; Revenue Context Active · Offline Mode</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="ai-status-dot" id="sim-status-dot"></div>
+            <span class="metric-chip green" id="sim-status-chip">● Ready</span>
+          </div>
+        </div>
+
+        <div class="ai-output-panel" id="ai-output">
+
+          <!-- Idle state -->
+          <div class="ai-idle-state" id="idle-state">
+            <div class="ai-idle-orb">✦</div>
+            <div class="ai-idle-text">Select an action from the panel below to generate an AI insight briefing from your network data.</div>
+          </div>
+
+          <!-- Loading state -->
+          <div class="ai-loading-state" id="loading-state">
+            <div class="ai-loader-ring"></div>
+            <div class="ai-loading-text" id="loading-label">Analyzing network data…</div>
+            <div class="ai-loading-steps" id="loading-steps"></div>
+          </div>
+
+          <!-- Result panels (shown after loading) -->
+          <div class="ai-result-block" id="result-generate-report">
+            <!-- populated by JS -->
+          </div>
+          <div class="ai-result-block" id="result-forecast-brief">
+            <!-- populated by JS -->
+          </div>
+          <div class="ai-result-block" id="result-route-alerts">
+            <!-- populated by JS -->
+          </div>
+          <div class="ai-result-block" id="result-pricing-analysis">
+            <!-- populated by JS -->
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Action Center -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Action Center</div>
+            <div class="card-subtitle">Select an insight module to generate</div>
+          </div>
+          <span class="metric-chip amber" id="pending-chip">4 modules</span>
+        </div>
+        <div class="card-body">
+          <div class="action-grid">
+            <div class="action-btn-card" id="btn-generate-report" onclick="triggerInsight('generate-report', this)">
+              <div class="action-icon" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2)">📊</div>
+              <div>
+                <div class="action-label">Generate Report</div>
+                <div class="action-sub">Full network summary</div>
+              </div>
+            </div>
+            <div class="action-btn-card" id="btn-forecast-brief" onclick="triggerInsight('forecast-brief', this)">
+              <div class="action-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2)">⟁</div>
+              <div>
+                <div class="action-label">Forecast Brief</div>
+                <div class="action-sub">12-month outlook</div>
+              </div>
+            </div>
+            <div class="action-btn-card" id="btn-route-alerts" onclick="triggerInsight('route-alerts', this)">
+              <div class="action-icon" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.2)">⚠</div>
+              <div>
+                <div class="action-label">Route Alerts</div>
+                <div class="action-sub">Performance flags</div>
+              </div>
+            </div>
+            <div class="action-btn-card" id="btn-pricing-analysis" onclick="triggerInsight('pricing-analysis', this)">
+              <div class="action-icon" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2)">💡</div>
+              <div>
+                <div class="action-label">Pricing Analysis</div>
+                <div class="action-sub">Yield opportunities</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   AEROMIND AI INSIGHT SIMULATOR
+   — No API calls. No CORS. Works fully offline.
+   — All insights generated from local dashboard.json data.
+   ══════════════════════════════════════════════════════ */
+
+/* ── Clock ── */
+function tick() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+tick(); setInterval(tick, 1000);
+
+/* ── Local data (mirrors dashboard.json / executive_report.txt) ── */
+const DATA = {
+  kpis: {
+    total_revenue: 41897604894.0,
+    total_profit: 14664161712.90,
+    total_passengers: 2598683,
+    margin: 35.0
+  },
+  top_routes: [
+    { route:'ORD→ATL', rev:2705745726, profit:947011004, pax:198856 },
+    { route:'ATL→ORD', rev:2678232977, profit:937381542, pax:212970 },
+    { route:'LHR→BOS', rev:2428225931, profit:849879076, pax:145354 },
+    { route:'ACE→LGW', rev:2409158161, profit:843205356, pax:118255 },
+    { route:'ORD→MSY', rev:2241485054, profit:784519769, pax:136244 },
+    { route:'CGK→SIN', rev:2220082112, profit:777028739, pax:134909 },
+    { route:'SIN→KUL', rev:2188081141, profit:765828399, pax:118302 },
+    { route:'CNX→BKK', rev:2133598259, profit:746759391, pax:152820 },
+    { route:'JFK→MXP', rev:2007691085, profit:702691880, pax:118480 },
+    { route:'KUL→CGK', rev:2005054609, profit:701769113, pax:139960 }
+  ],
+  forecast_rev:  [836.5,857.3,878.1,898.9,919.7,940.5,961.3,982.1,1002.8,1023.6,1044.4,1065.2],
+  forecast_pax:  [183616,185710,187805,189900,191994,194089,196184,198278,200373,202468,204562,206657]
+};
+
+const FMT = {
+  rev: v => '$' + (v/1e9).toFixed(2) + 'B',
+  revM: v => '$' + (v/1e6).toFixed(0) + 'M',
+  pct: v => v.toFixed(1) + '%',
+  num: v => v.toLocaleString()
+};
+
+/* ── Loading step sets per action ── */
+const LOAD_STEPS = {
+  'generate-report': [
+    'Scanning route performance data…',
+    'Computing revenue & profit metrics…',
+    'Cross-referencing passenger volumes…',
+    'Compiling executive briefing…'
+  ],
+  'forecast-brief': [
+    'Loading 12-month forecast model…',
+    'Calculating revenue growth trajectory…',
+    'Projecting passenger volume curve…',
+    'Generating forecast highlights…'
+  ],
+  'route-alerts': [
+    'Auditing top-10 route data…',
+    'Flagging capacity opportunities…',
+    'Scoring route risk profiles…',
+    'Assembling alert briefing…'
+  ],
+  'pricing-analysis': [
+    'Analyzing margin uniformity signals…',
+    'Calculating yield expansion potential…',
+    'Modeling dynamic pricing scenarios…',
+    'Generating pricing recommendations…'
+  ]
+};
+
+/* ── State ── */
+let activeAction = null;
+let isProcessing = false;
+
+/* ── UI helpers ── */
+function setStatus(state) {
+  const dot  = document.getElementById('sim-status-dot');
+  const chip = document.getElementById('sim-status-chip');
+  const orb  = document.getElementById('sim-orb');
+  const txt  = document.getElementById('sim-status-text');
+
+  if (state === 'ready') {
+    dot.className  = 'ai-status-dot';
+    chip.className = 'metric-chip green';
+    chip.textContent = '● Ready';
+    orb.classList.remove('processing');
+    txt.textContent = 'Network & Revenue Context Active · Offline Mode';
+  } else if (state === 'processing') {
+    dot.className  = 'ai-status-dot processing';
+    chip.className = 'metric-chip amber';
+    chip.textContent = '◌ Processing…';
+    orb.classList.add('processing');
+    txt.textContent = 'Analyzing network data · No API calls · Fully offline';
+  }
+}
+
+function showIdle() {
+  document.getElementById('idle-state').style.display   = 'flex';
+  document.getElementById('loading-state').style.display = 'none';
+  hideAllResults();
+}
+
+function hideAllResults() {
+  document.querySelectorAll('.ai-result-block').forEach(el => {
+    el.classList.remove('visible');
+    el.style.display = 'none';
+  });
+}
+
+function showLoading(action) {
+  document.getElementById('idle-state').style.display   = 'none';
+  document.getElementById('loading-state').className    = 'ai-loading-state visible';
+  hideAllResults();
+
+  const steps = LOAD_STEPS[action] || [];
+  const stepsEl = document.getElementById('loading-steps');
+  stepsEl.innerHTML = steps.map((s, i) =>
+    `<div class="ai-load-step" id="lstep-${i}"><div class="step-dot"></div><span>${s}</span></div>`
+  ).join('');
+
+  document.getElementById('loading-label').textContent = 'Initializing analysis engine…';
+}
+
+function animateLoadingSteps(steps) {
+  return new Promise(resolve => {
+    const delay = Math.floor(2200 / steps.length);
+    steps.forEach((_, i) => {
+      setTimeout(() => {
+        // Mark previous as done
+        if (i > 0) {
+          const prev = document.getElementById(`lstep-${i-1}`);
+          if (prev) { prev.className = 'ai-load-step done'; prev.querySelector('.step-dot').textContent = ''; }
+        }
+        const el = document.getElementById(`lstep-${i}`);
+        if (el) el.className = 'ai-load-step active';
+
+        document.getElementById('loading-label').textContent = steps[i];
+
+        if (i === steps.length - 1) {
+          setTimeout(() => {
+            el.className = 'ai-load-step done';
+            resolve();
+          }, delay - 100);
+        }
+      }, i * delay);
+    });
+  });
+}
+
+function showResult(action) {
+  document.getElementById('loading-state').className = 'ai-loading-state';
+  const el = document.getElementById(`result-${action}`);
+  if (el) {
+    el.style.display = 'flex';
+    el.classList.add('visible');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+/* ── Timestamp ── */
+function nowStamp() {
+  return new Date().toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) + ' · AeroMind Intelligence';
+}
+
+/* ── Result builders ── */
+function buildGenerateReport() {
+  const el = document.getElementById('result-generate-report');
+  const d = DATA;
+  el.innerHTML = `
+    <div class="result-section-label">✦ Executive Network Report · Full Summary</div>
+
+    <div class="result-card rc-blue stagger-in" style="animation-delay:0.05s">
+      <div class="result-card-title">Network KPIs</div>
+      <div class="result-metric-row">
+        <div class="rmet"><div class="rmet-val blue">$41.90B</div><div class="rmet-lbl">Total Revenue</div></div>
+        <div class="rmet"><div class="rmet-val green">$14.66B</div><div class="rmet-lbl">Total Profit</div></div>
+        <div class="rmet"><div class="rmet-val amber">35.0%</div><div class="rmet-lbl">Profit Margin</div></div>
+        <div class="rmet"><div class="rmet-val purple">2.60M</div><div class="rmet-lbl">Passengers</div></div>
+      </div>
+    </div>
+
+    <div class="result-card rc-green stagger-in" style="animation-delay:0.12s">
+      <div class="result-card-title">Top Revenue Route</div>
+      <div class="result-card-body">
+        <strong>ORD→ATL</strong> leads the network at <strong>$2.71B revenue</strong> with <strong>$947M profit</strong> and <strong>198,856 passengers</strong>. Together with ATL→ORD, this corridor generates <strong>$5.38B</strong> — 12.8% of total network revenue. Widebody up-gauging is the recommended capacity lever.
+      </div>
+    </div>
+
+    <div class="result-card rc-purple stagger-in" style="animation-delay:0.19s">
+      <div class="result-card-title">Revenue Forecast (12-Month)</div>
+      <div class="result-card-body">Monthly revenue grows from <strong>$836.5M → $1.065B</strong> over the forecast period.</div>
+      <div class="forecast-bars" id="fbar-rev"></div>
+      <div class="fbar-label"><span>Jan</span><span>Jun</span><span>Dec</span></div>
+    </div>
+
+    <div class="result-card rc-cyan stagger-in" style="animation-delay:0.26s">
+      <div class="result-card-title">Passenger Forecast (12-Month)</div>
+      <div class="result-card-body">Passenger volume expands from <strong>183,616 → 206,657</strong> per month — a <strong>+12.5%</strong> increase vs revenue's +27.4%, confirming yield-per-passenger expansion.</div>
+    </div>
+
+    <div class="result-card rc-amber stagger-in" style="animation-delay:0.33s">
+      <div class="result-card-title">Strategic Recommendations</div>
+      <div class="result-card-body">
+        <strong>1.</strong> Expand ORD↔ATL corridor frequency to capture $400M+ suppressed demand.<br>
+        <strong>2.</strong> Accelerate SEA cluster (CGK–SIN–KUL) — $6.41B cluster, 3 of top 10 routes.<br>
+        <strong>3.</strong> Deploy dynamic pricing on all 20 routes — estimated +9.6% revenue uplift.<br>
+        <strong>4.</strong> Activate premium cabin upsell on LHR→BOS and JFK→MXP for yield maximization.
+      </div>
+    </div>
+
+    <div class="result-timestamp">${nowStamp()}</div>
+  `;
+
+  // Build forecast bars
+  setTimeout(() => {
+    const bars = document.getElementById('fbar-rev');
+    if (!bars) return;
+    const min = Math.min(...DATA.forecast_rev);
+    const max = Math.max(...DATA.forecast_rev);
+    bars.innerHTML = DATA.forecast_rev.map(v => {
+      const h = Math.round(((v - min) / (max - min)) * 48 + 8);
+      return `<div class="fbar" title="$${v}M" style="height:${h}px"></div>`;
+    }).join('');
+  }, 100);
+}
+
+function buildForecastBrief() {
+  const el = document.getElementById('result-forecast-brief');
+  const revGrowth = ((DATA.forecast_rev[11] - DATA.forecast_rev[0]) / DATA.forecast_rev[0] * 100).toFixed(1);
+  const paxGrowth = ((DATA.forecast_pax[11] - DATA.forecast_pax[0]) / DATA.forecast_pax[0] * 100).toFixed(1);
+
+  el.innerHTML = `
+    <div class="result-section-label">⟁ 12-Month Forecast Brief · Revenue & Passengers</div>
+
+    <div class="result-card rc-blue stagger-in" style="animation-delay:0.05s">
+      <div class="result-card-title">Revenue Growth</div>
+      <div class="result-metric-row" style="margin-bottom:10px">
+        <div class="rmet"><div class="rmet-val blue">$836.5M</div><div class="rmet-lbl">Month 1 (Jan)</div></div>
+        <div class="rmet"><div class="rmet-val blue" style="opacity:0.6">→</div><div class="rmet-lbl">&nbsp;</div></div>
+        <div class="rmet"><div class="rmet-val blue">$1.065B</div><div class="rmet-lbl">Month 12 (Dec)</div></div>
+        <div class="rmet"><div class="rmet-val green">+${revGrowth}%</div><div class="rmet-lbl">Total growth</div></div>
+      </div>
+      <div class="result-card-body">Revenue accelerates linearly at <strong>~$20.8M/month</strong> compounding increment. The trajectory is driven by yield improvement, not purely volume — a premium indicator for pricing strategy teams.</div>
+      <div class="forecast-bars" id="fbar-rev2"></div>
+      <div class="fbar-label"><span>Jan</span><span>Jun</span><span>Dec</span></div>
+    </div>
+
+    <div class="result-card rc-purple stagger-in" style="animation-delay:0.12s">
+      <div class="result-card-title">Passenger Growth</div>
+      <div class="result-metric-row" style="margin-bottom:10px">
+        <div class="rmet"><div class="rmet-val purple">183,616</div><div class="rmet-lbl">Month 1 (Jan)</div></div>
+        <div class="rmet"><div class="rmet-val purple" style="opacity:0.6">→</div><div class="rmet-lbl">&nbsp;</div></div>
+        <div class="rmet"><div class="rmet-val purple">206,657</div><div class="rmet-lbl">Month 12 (Dec)</div></div>
+        <div class="rmet"><div class="rmet-val amber">+${paxGrowth}%</div><div class="rmet-lbl">Total growth</div></div>
+      </div>
+      <div class="result-card-body">Passenger volume grows at <strong>~2,095 passengers/month</strong>. Peak load expected in months 9–12, requiring advance crew and slot planning on high-frequency routes.</div>
+    </div>
+
+    <div class="result-card rc-cyan stagger-in" style="animation-delay:0.19s">
+      <div class="result-card-title">Forecast Highlights</div>
+      <div class="result-card-body">
+        <strong>Yield divergence:</strong> Revenue grows 2.2× faster than passenger volume — a strong signal that revenue per seat is improving across the network.<br><br>
+        <strong>H2 inflection:</strong> Revenue crosses the $1B/month threshold in month 9 (Sep) — an important milestone for network scaling decisions.<br><br>
+        <strong>Long-haul leverage:</strong> International routes (LHR→BOS, JFK→MXP, ACE→LGW) are the primary yield engines. Protecting seat availability and upsell penetration on these routes is critical to achieving forecast targets.
+      </div>
+    </div>
+
+    <div class="result-timestamp">${nowStamp()}</div>
+  `;
+
+  setTimeout(() => {
+    const bars = document.getElementById('fbar-rev2');
+    if (!bars) return;
+    const min = Math.min(...DATA.forecast_rev);
+    const max = Math.max(...DATA.forecast_rev);
+    bars.innerHTML = DATA.forecast_rev.map(v => {
+      const h = Math.round(((v - min) / (max - min)) * 48 + 8);
+      return `<div class="fbar" title="$${v}M" style="height:${h}px"></div>`;
+    }).join('');
+  }, 100);
+}
+
+function buildRouteAlerts() {
+  const el = document.getElementById('result-route-alerts');
+  const top5 = DATA.top_routes.slice(0, 5);
+
+  const tableRows = top5.map(r =>
+    `<tr>
+      <td class="td-route">${r.route}</td>
+      <td class="td-rev">${FMT.revM(r.rev)}</td>
+      <td class="td-pax">${FMT.num(r.pax)}</td>
+      <td style="color:var(--accent-jade)">35.0%</td>
+    </tr>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="result-section-label">⚠ Route Alerts · Performance Overview</div>
+
+    <div class="result-card rc-amber stagger-in" style="animation-delay:0.05s">
+      <div class="result-card-title">Top 5 Routes by Revenue</div>
+      <table class="route-table">
+        <thead>
+          <tr>
+            <th>Route</th>
+            <th>Revenue</th>
+            <th>Passengers</th>
+            <th>Margin</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+
+    <div class="result-card rc-blue stagger-in" style="animation-delay:0.12s">
+      <div class="result-card-title">Capacity Opportunities</div>
+      <div class="result-card-body">
+        <strong>ORD↔ATL (combined 411K pax):</strong> This corridor is the network's highest-value capacity opportunity. Both directions showing 35% margins with high pax volumes — up-gauging to widebody or adding 2–3 daily frequencies will absorb latent demand.<br><br>
+        <strong>CGK→SIN / SIN→KUL / KUL→CGK:</strong> All three Southeast Asia routes are in the top 10. Slot coordination across this triangle can unlock multi-segment uplift without proportional cost increase.<br><br>
+        <strong>CNX→BKK (152K pax):</strong> Highest passenger volume in the Asia cluster. High seat density routes; adding premium cabin tiers here could materially lift yield.
+      </div>
+    </div>
+
+    <div class="result-card rc-crimson stagger-in" style="animation-delay:0.19s">
+      <div class="result-card-title">Route Risks</div>
+      <div class="result-card-body">
+        <strong>Margin uniformity flag:</strong> All 20 routes at exactly 35% margin is statistically atypical — it suggests static cost allocation models rather than dynamic pricing. Any fuel cost spike or demand dip would compress margins network-wide simultaneously, creating correlated risk.<br><br>
+        <strong>Long-haul concentration:</strong> LHR→BOS and JFK→MXP have high revenue per passenger but lower total pax (145K, 118K). Any disruption (slot loss, regulatory, weather) would have outsized revenue impact per incident.<br><br>
+        <strong>ACE→LGW ($2.41B):</strong> Arrecife Canary Islands to London Gatwick — leisure-heavy route with seasonal demand concentration. Recommend surge pricing activation for peak summer windows.
+      </div>
+    </div>
+
+    <div class="result-timestamp">${nowStamp()}</div>
+  `;
+}
+
+function buildPricingAnalysis() {
+  const el = document.getElementById('result-pricing-analysis');
+
+  el.innerHTML = `
+    <div class="result-section-label">💡 Pricing Analysis · Yield & Margin Optimization</div>
+
+    <div class="result-card rc-green stagger-in" style="animation-delay:0.05s">
+      <div class="result-card-title">Revenue Yield Opportunities</div>
+      <div class="result-card-body">
+        The network-wide <strong>35% uniform margin</strong> across all 20 routes is the most significant pricing signal in the data. In a naturally priced market, high-demand routes (ORD↔ATL, LHR→BOS) would command 40–45% margins while thinner routes run at 28–32%. This uniformity implies static tariff structures are masking $1.5–2.5B in addressable yield.<br><br>
+        <strong>Highest-yield targets:</strong> International long-haul (LHR→BOS, JFK→MXP, ACE→LGW) — these routes carry premium travelers with lower price elasticity, making them the safest ground for fare elevation.
+      </div>
+      <div class="result-metric-row" style="margin-top:12px">
+        <div class="rmet"><div class="rmet-val green">+9.6%</div><div class="rmet-lbl">Est. yield uplift</div></div>
+        <div class="rmet"><div class="rmet-val cyan">$4.02B</div><div class="rmet-lbl">Incremental opportunity</div></div>
+      </div>
+    </div>
+
+    <div class="result-card rc-purple stagger-in" style="animation-delay:0.12s">
+      <div class="result-card-title">Dynamic Pricing Recommendations</div>
+      <div class="result-card-body">
+        <strong>Tier 1 — Implement immediately:</strong> ORD↔ATL, LHR→BOS, JFK→MXP. Deploy booking-curve-aware pricing with 14/7/3-day fare bands. Expected margin improvement: +4–6 pp.<br><br>
+        <strong>Tier 2 — Seasonal triggers:</strong> ACE→LGW (summer), CNX→BKK (festival windows). Activate surge pricing 60 days before peak. Expected revenue uplift: +8–12% on these routes.<br><br>
+        <strong>Tier 3 — Demand shaping:</strong> SEA triangle (CGK–SIN–KUL). Use interline price coordination to optimize multi-segment passengers vs. point-to-point yield. Net margin gain: +2–3 pp.
+      </div>
+    </div>
+
+    <div class="result-card rc-cyan stagger-in" style="animation-delay:0.19s">
+      <div class="result-card-title">Margin Optimization Insights</div>
+      <div class="result-card-body">
+        <strong>Ancillary uplift:</strong> Domestic high-pax routes (ORD→MSY 136K pax, CNX→BKK 152K pax) are underutilized for ancillary revenue. Seat selection fees, baggage bundles, and lounge day passes at these volumes could generate <strong>$180–250M</strong> incremental annually without fare changes.<br><br>
+        <strong>Premium cabin conversion:</strong> Given the 2.2× revenue/pax growth ratio in forecasts, revenue per passenger is already rising. Accelerate this by converting 8–12 economy seats to premium economy on LHR→BOS and ACE→LGW — high-margin refits with 6-month payback windows.<br><br>
+        <strong>Corporate contract review:</strong> Uniform 35% margins suggest corporate contracts may be capping yield on peak days. Recommend renegotiating blackout-date clauses on the top 5 routes.
+      </div>
+      <div class="result-metric-row" style="margin-top:12px">
+        <div class="rmet"><div class="rmet-val amber">+2.5%</div><div class="rmet-lbl">Margin improvement</div></div>
+        <div class="rmet"><div class="rmet-val purple">$250M</div><div class="rmet-lbl">Ancillary potential</div></div>
+      </div>
+    </div>
+
+    <div class="result-timestamp">${nowStamp()}</div>
+  `;
+}
+
+/* ── Main trigger function ── */
+async function triggerInsight(action, btnEl) {
+  if (isProcessing) return;
+  isProcessing = true;
+
+  // Update active button state
+  document.querySelectorAll('.action-btn-card').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+
+  activeAction = action;
+  setStatus('processing');
+  showLoading(action);
+
+  const steps = LOAD_STEPS[action] || ['Processing…'];
+  await animateLoadingSteps(steps);
+
+  // Small pause after last step
+  await new Promise(r => setTimeout(r, 300));
+
+  // Build the result content
+  if (action === 'generate-report')   buildGenerateReport();
+  if (action === 'forecast-brief')    buildForecastBrief();
+  if (action === 'route-alerts')      buildRouteAlerts();
+  if (action === 'pricing-analysis')  buildPricingAnalysis();
+
+  showResult(action);
+  setStatus('ready');
+  isProcessing = false;
+
+  document.getElementById('pending-chip').textContent = 'Last: ' + (btnEl ? btnEl.querySelector('.action-label').textContent : action);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+route_id,origin,destination
+1,BLR,DEL
+2,BLR,BOM
+3,DEL,MAA
+4,BOM,HYD
+5,HYD,BLR
